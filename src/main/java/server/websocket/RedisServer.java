@@ -6,8 +6,6 @@ package server.websocket;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.Protocol;
 
 /**
  * @author zhousheng
@@ -20,16 +18,16 @@ public class RedisServer {
 	static RedisServer redis;
 	String USERINFO = "userInfo";
 	
-	public static RedisServer getInstance(){
-		if (redis == null){
+	public static RedisServer getInstance() {
+		if (redis == null) {
 			redis = new RedisServer();
 		}
 		return redis;
 	}
 	
-	private JedisPool getPool(){
-		if (pool == null){
-			pool = new JedisPool(new JedisPoolConfig(), "localhost", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT, "1314");
+	private JedisPool getPool() {
+		if (pool == null) {
+//			pool = new JedisPool(new JedisPoolConfig(), "localhost", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT, "1314");
 //            pool = new JedisPool(new JedisPoolConfig(), "guanzhiwangluogongyi.vip", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT, "1314");
 //            pool = new JedisPool(new JedisPoolConfig(), "47.107.178.120", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT, "1314");
 //            pool = new JedisPool(new JedisPoolConfig(), "47.107.178.120", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT, "1314");
@@ -37,7 +35,7 @@ public class RedisServer {
 		return pool;
 	}
 	
-	public String getUserInfo(String OpenId){
+	public String getUserInfo(String OpenId) {
 		Jedis jedis = null;
 		try {
 			jedis = getPool().getResource();
@@ -49,7 +47,7 @@ public class RedisServer {
 		}
 	}
 	
-	public void setUserInfo(String OpenId, String userInfo){
+	public void setUserInfo(String OpenId, String userInfo) {
 		Jedis jedis = null;
 		try {
 			jedis = getPool().getResource();

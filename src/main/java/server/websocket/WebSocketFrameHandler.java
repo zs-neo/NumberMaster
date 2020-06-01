@@ -8,6 +8,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,11 +18,15 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * 仅处理某种特定的数据类型的handler
+ *
  * @author zhousheng
  * @version 1.0
  * @since 2020/5/31 20:36
  */
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
+	
+	private Logger logger = LoggerFactory.getLogger(WebSocketFrameHandler.class);
 	
 	static List<String> lUsers = new ArrayList<String>(); //存放所有参与匹配的OpenID
 	static HashMap<ChannelHandlerContext, ChannelHandlerContext> mapCtx = new HashMap<ChannelHandlerContext, ChannelHandlerContext>(); //索引为A方，字段为与A对战的B方
@@ -34,6 +40,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 		if (OpenID != null) {
 			mapUserCtx.remove(OpenID);
 			lUsers.remove(OpenID);
+			logger.info("玩家退出游戏,移除" + OpenID);
 		}
 		mapCtx.remove(ctx);
 	}
@@ -49,55 +56,29 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 			String request = ((TextWebSocketFrame) frame).text();
 			// 心跳包
 			if (request.equals("0")) {
+				logger.info("响应心跳包 " + request);
 				ctx.channel().writeAndFlush(new TextWebSocketFrame("0"));
 				return;
 			}
-			System.out.println(getStrDate() + ctx.channel().remoteAddress() + "\t" + request);
-			int iColon = request.indexOf(":");
-			if (iColon == -1) return;
-			String cmd = request.substring(0, iColon);
+			logger.info(getStrDate() + ctx.channel().remoteAddress() + "\t" + request);
 			String OpenID = "", otherOpenID = "";
-//            String sResponse = "200"; //请求成功
 			ChannelHandlerContext oCtx = null;
 			int i1 = request.indexOf("&", 1); //第一个"&"的位置；
-			if (i1 != -1) OpenID = request.substring(iColon + 1, i1);
-			if (cmd.equals("wxLogin")) {
+			String opt = "";
+			if (opt.equals("wxLogin")) {
 				String userInfo = request.substring(i1 + 1);
 				RedisServer.getInstance().setUserInfo(OpenID, userInfo);
 				mapUserCtxReverse.put(ctx, OpenID);
 				mapUserCtx.put(OpenID, ctx);
-			} else if (cmd.equals("match")) {
-				OpenID = request.substring(iColon + 1);
-				if (lUsers.contains(OpenID)) return;
-				if (lUsers.size() > 0) {
-					while (lUsers.size() > 0) {
-						otherOpenID = lUsers.remove(0);
-//                            System.out.println(getStrDate()+"\t"+"me="+OpenID+"\t"+"other="+otherOpenID+"\t"+mapUserCtx.size());
-						oCtx = mapUserCtx.get(otherOpenID);
-						if (oCtx != null) {
-							RedisServer redis = RedisServer.getInstance();
-							String other = redis.getUserInfo(otherOpenID);
-							if (other == null) other = "";
-							String me = redis.getUserInfo(OpenID);
-							if (me == null) me = "";
-//                                System.out.println(getStrDate()+"\t"+"me="+me+"&"+OpenID+"\t"+"other="+other+"&"+otherOpenID);
-							ctx.channel().writeAndFlush(new TextWebSocketFrame(cmd + ":" + other));
-							oCtx.channel().writeAndFlush(new TextWebSocketFrame(cmd + ":" + me));
-							mapCtx.put(ctx, oCtx);
-							mapCtx.put(oCtx, ctx);
-							break;
-						}
-					}
-				} else lUsers.add(OpenID);
-			} else if (cmd.equals("lose")) {
+			} else if (opt.equals("startgamematch")) {
+			
+			} else if (opt.equals("lose")) {
 				oCtx = mapCtx.get(ctx);
 				if (oCtx != null) {
-					oCtx.channel().writeAndFlush(new TextWebSocketFrame(cmd + ":"));
 					mapCtx.remove(oCtx);
 				}
 				mapCtx.remove(ctx);
-			} else if (cmd.equals("quit")) {
-				OpenID = request.substring(iColon + 1);
+			} else if (opt.equals("quit")) {
 				lUsers.remove(OpenID);
 			}
 		} else {
@@ -108,8 +89,8 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 	
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-//        cause.printStackTrace();
-		System.out.println(getStrDate() + ctx.channel().remoteAddress() + "\t" + cause);
+		cause.printStackTrace();
+		logger.warn("Error : " + getStrDate() + ctx.channel().remoteAddress() + "\t" + cause);
 		ctx.close();
 	}
 	

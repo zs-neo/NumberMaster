@@ -26,7 +26,7 @@ public class WebSocketServer {
 	static final boolean SSL = System.getProperty("ssl") != null;
 	
 	//ssl should run on 443
-	static final int PORT = Integer.parseInt(System.getProperty("port", SSL? "443" : "8081"));
+	static final int PORT = Integer.parseInt(System.getProperty("port", SSL ? "443" : "8800"));
 	
 	public static void main(String[] args) throws Exception {
 		// Configure SSL.
@@ -38,7 +38,7 @@ public class WebSocketServer {
 			sslCtx = null;
 		}
 		
-		EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+		EventLoopGroup bossGroup = new NioEventLoopGroup(2);
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
 		try {
 			ServerBootstrap b = new ServerBootstrap();
@@ -48,9 +48,8 @@ public class WebSocketServer {
 					.childHandler(new WebSocketServerInitializer(sslCtx));
 			
 			Channel ch = b.bind(PORT).sync().channel();
-
-//            System.out.println("Open your web browser and navigate to " +
-//                    (SSL? "https" : "http") + "://127.0.0.1:" + PORT + '/');
+			
+			System.out.println("Open your web browser and navigate to " + (SSL ? "https" : "http") + "://127.0.0.1:" + PORT + '/');
 			ch.closeFuture().sync();
 		} finally {
 			bossGroup.shutdownGracefully();
