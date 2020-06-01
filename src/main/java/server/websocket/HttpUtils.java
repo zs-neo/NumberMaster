@@ -34,7 +34,7 @@ public class HttpUtils {
 			conn.connect();
 			in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String line;
-			while((line = in.readLine()) != null) result += line;
+			while ((line = in.readLine()) != null) result += line;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
