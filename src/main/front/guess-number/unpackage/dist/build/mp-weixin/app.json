@@ -1,0 +1,21 @@
+{
+  "pages": [
+    "pages/main/main",
+    "pages/user/user",
+    "pages/game/game",
+    "pages/rank/rank"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarBackgroundColor": "#0081ff",
+    "navigationBarTitleText": "ColorUi for UniApp",
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "white"
+  },
+  "usingComponents": {
+    "game": "/pages/game/game",
+    "rank": "/pages/rank/rank",
+    "user": "/pages/user/user"
+  },
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,31 @@
+{
+    "pages": [ //pages数组中第一项表示应用启动页,
+        {
+            "path": "pages/main/main",
+            "style": {}
+        }, 
+		{
+            "path": "pages/user/user",
+            "style": {}
+        }
+        ,{
+            "path" : "pages/game/game",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/rank/rank",
+            "style" : {}
+        }
+    ],
+    "globalStyle": {
+    	"mp-alipay": {
+    		/* 支付宝小程序特有相关 */
+    		"transparentTitle": "always",
+    		"allowsBounceVertical": "NO"
+    	},
+    	"navigationBarBackgroundColor": "#0081ff",
+    	"navigationBarTitleText": "ColorUi for UniApp",
+    	"navigationStyle": "custom",
+    	"navigationBarTextStyle": "white"
+    }
+}
